@@ -1,0 +1,99 @@
+<style>
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f0f0;
+  }
+
+  /* 用于控制唱片旋转的 CSS 动画 */
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .spinning {
+    transform-origin: 300px 300px; /* 确保旋转中心是唱片中心 */
+    animation: spin 3s linear infinite; /* 3秒一圈，无限循环 */
+  }
+
+  #arm-pivot {
+    /* 唱臂转动的中心点 */
+    transform-origin: 500px 100px; 
+    transition: transform 0.5s ease-in-out; /* 平滑移动效果 */
+  }
+</style>
+
+<div id="vinyl-player-container">
+  
+  <svg width="600" height="600" viewBox="0 0 600 600">
+    
+    <rect 
+      x="50" y="50" width="500" height="500" 
+      rx="10" ry="10" 
+      fill="#A0522D" /* 土棕色/木色 */
+      stroke="#654321" 
+      stroke-width="5"
+    />
+
+    <circle cx="300" cy="300" r="200" fill="#222" />
+
+    <g id="vinyl-record">
+      <circle cx="300" cy="300" r="180" fill="#D94040" />
+      <circle cx="300" cy="300" r="40" fill="#fff" />
+      <text x="300" y="305" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#000">ATTENTION</text>
+    </g>
+
+    <g id="arm-pivot" transform="rotate(20)">
+      <circle cx="500" cy="100" r="15" fill="#333" />
+      <rect x="305" y="95" width="200" height="10" fill="#555" />
+      <rect x="285" y="90" width="20" height="20" rx="2" fill="#888" />
+      <polygon points="285,100 295,100 285,110" fill="#000" />
+    </g>
+    
+    <rect 
+      x="50" y="520" width="60" height="20" 
+      fill="#4CAF50" /* 绿色 */
+      rx="5" ry="5"
+      cursor="pointer"
+      onclick="togglePlay()"
+    >
+      <title>点击播放/暂停</title>
+    </rect>
+    <text x="65" y="535" font-family="sans-serif" font-size="12" fill="#fff">PLAY</text>
+
+  </svg>
+</div>
+<script>
+  // 1. 插入一个音频播放器 (可以使用您视频中的 Attention 翻唱音频，或者找一个合适的 MP3 链接)
+  const audio = new Audio("attentioncover.mp3"); // 示例音频
+  audio.loop = true; // 循环播放
+
+  const vinylRecord = document.getElementById('vinyl-record');
+  const armPivot = document.getElementById('arm-pivot');
+  const playButtonText = document.querySelector('svg > rect + text'); // 定位播放按钮文本
+
+  let isPlaying = false;
+
+  // 2. 播放/暂停控制
+  function togglePlay() {
+    if (isPlaying) {
+      // --- 停止状态 ---
+      audio.pause();
+      vinylRecord.classList.remove('spinning');
+      armPivot.style.transform = 'rotate(20deg)'; // 唱臂抬起并归位
+      playButtonText.textContent = 'PLAY';
+    } else {
+      // --- 播放状态 ---
+      audio.play().catch(error => {
+        console.error("播放失败，可能是浏览器阻止自动播放。", error);
+        alert("请确保与页面交互后（如点击）才能自动播放音频。");
+      });
+      vinylRecord.classList.add('spinning');
+      armPivot.style.transform = 'rotate(-10deg)'; // 唱臂放下到唱片上
+      playButtonText.textContent = 'PAUSE';
+    }
+    isPlaying = !isPlaying;
+  }
+</script>
