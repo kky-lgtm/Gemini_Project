@@ -1,0 +1,33 @@
+
+def get_campaign_data(level, wave_id=None, campaign_id=None, bu=None):
+    
+    base_query = """
+        SELECT
+            customer_id,
+            wave_id,
+            campaign_id,
+            business_unit,
+            channel,
+            sent_dt,
+            open_flag,
+            click_flag,
+            converted_flag
+        FROM base_campaign_events
+        WHERE 1=1
+    """
+    
+    # dynamic filters
+    if level == "wave" and wave_id:
+        base_query += f" AND wave_id = '{wave_id}'"
+    
+    if level == "campaign" and campaign_id:
+        base_query += f" AND campaign_id = '{campaign_id}'"
+    
+    if level == "bu" and bu:
+        base_query += f" AND business_unit = '{bu}'"
+    
+    # customer level return everything, no extra filter
+    return spark.sql(base_query)
+
+
+df_wave = get_campaign_data(level="wave", wave_id="W2")
