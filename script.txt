@@ -31,3 +31,83 @@ def get_campaign_data(level, wave_id=None, campaign_id=None, bu=None):
 
 
 df_wave = get_campaign_data(level="wave", wave_id="W2")
+
+-----------------------------
+Jialin Y, [12/4/2025 2:56 PM]
+def get_campaign_data(level, wave_id=None, campaign_id=None, bu=None):
+    
+    base_query = """
+        SELECT
+            customer_id,
+            wave_id,
+            campaign_id,
+            business_unit,
+            channel,
+            sent_dt,
+            open_flag,
+            click_flag,
+            converted_flag
+        FROM base_campaign_events
+        WHERE 1=1
+    """
+    
+    # dynamic filters
+    if level == "wave" and wave_id:
+        base_query += f" AND wave_id = '{wave_id}'"
+    
+    if level == "campaign" and campaign_id:
+        base_query += f" AND campaign_id = '{campaign_id}'"
+    
+    if level == "bu" and bu:
+        base_query += f" AND business_unit = '{bu}'"
+    
+    # customer level return everything, no extra filter
+    return spark.sql(base_query)
+
+Jialin Y, [12/4/2025 2:57 PM]
+df_wave = get_campaign_data(level="wave", wave_id="W2")
+
+Jialin Y, [12/4/2025 3:25 PM]
+def get_campaign_data(level, wave_id=None, campaign_id=None, bu=None):
+    
+    base_query = """
+        SELECT
+            customer_id,
+            wave_id,
+            campaign_id,
+            business_unit,
+            channel,
+            sent_dt,
+            open_flag,
+            click_flag,
+            converted_flag
+        FROM base_campaign_events
+        WHERE 1=1
+    """
+    
+    # IF level = wave THEN filter by wave_id
+    if level == "wave":
+        if not wave_id:
+            raise ValueError("wave_id is required when level='wave'")
+        base_query += f" AND wave_id = '{wave_id}'"
+
+    # IF level = campaign THEN filter by campaign_id
+    elif level == "campaign":
+        if not campaign_id:
+            raise ValueError("campaign_id is required when level='campaign'")
+        base_query += f" AND campaign_id = '{campaign_id}'"
+
+    # IF level = bu THEN filter by business_unit
+    elif level == "bu":
+        if not bu:
+            raise ValueError("bu is required when level='bu'")
+        base_query += f" AND business_unit = '{bu}'"
+
+    # IF level = customer THEN no additional filter
+    elif level == "customer":
+        pass
+    
+    else:
+        raise ValueError("Level must be one of: 'wave', 'campaign', 'bu', 'customer'")
+
+    return spark.sql(base_query)
